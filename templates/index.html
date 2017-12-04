@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Example Document Symbols{% endblock %}
+
+{% block content %}
+<div>
+    <form id='doc-symbol-input' action='/' method="POST">
+    <div class="form-group">
+        <label for="doc-symbol">Document Symbols</label>
+        <textarea class="form-control" id="doc-symbols" rows="2" name="document_symbols"></textarea>
+        <small id="doc-symbol-help" class="form-text text-muted">
+  Enter one or more Document Symbols, comma separated.
+        </small>   
+    </div>
+        <button type="submit" class="btn btn-primary" id="document-symbols">Submit</button>
+    </form>
+</div>
+
+
+{% endblock %}
