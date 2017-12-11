@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from logging import getLogger
+from sqlalchemy.exc import SQLAlchemyError
 from .models import DocumentMetadata
 from .db import db_session
 from .base_page import BasePage
@@ -8,6 +9,15 @@ app = Flask(__name__)
 logger = getLogger(__name__)
 
 app.config.from_pyfile('config.py')
+
+
+def session_commit(session, msg):
+    session.flush()
+    try:
+        session.commit()
+    except SQLAlchemyError as e:
+        print("Caught Commit error in {}: {}".format(msg, e))
+        session.rollback()
 
 
 @app.errorhandler(404)
@@ -25,10 +35,10 @@ def index():
             symbols = doc_symbols.split(',')
             symbol_list = [sym.strip() for sym in symbols]
             for elem in symbol_list:
-                val = DocumentMetadata.query.filter_by(document_symbol=elem)
+                val = db_session.query(DocumentMetadata).filter_by(document_symbol=elem)
                 if not val:
                     metadata_json = _fetch_metadata(val)
-                    row = DocumentMetadata(document_symbol=val,
+                    row = db_session.query(DocumentMetadata).filter_by(document_symbol=val,
                         metadata_json=metadata_json)
                     row.metadata_hash = row._set_hash()
                     db_session.add(row)
