@@ -15,7 +15,7 @@ class DocumentMetadata(Base):
 
     def _set_hash(self):
         m = hashlib.sha256()
-        m.update(self.metadata_json)
+        m.update(repr(self.metadata_json).encode('UTF-8'))
         return m.hexdigest()
 
     def __init__(self, document_symbol, metadata_json):

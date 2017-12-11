@@ -4,11 +4,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from .models import DocumentMetadata
 from .db import db_session
 from .base_page import BasePage
+from .config import DevelopmentConfig
 
 app = Flask(__name__)
 logger = getLogger(__name__)
 
-app.config.from_pyfile('config.py')
+app.config.from_object(DevelopmentConfig)
 
 
 def session_commit(session, msg):
@@ -35,13 +36,12 @@ def index():
             symbols = doc_symbols.split(',')
             symbol_list = [sym.strip() for sym in symbols]
             for elem in symbol_list:
-                val = db_session.query(DocumentMetadata).filter_by(document_symbol=elem)
-                if not val:
-                    metadata_json = _fetch_metadata(val)
-                    row = db_session.query(DocumentMetadata).filter_by(document_symbol=val,
-                        metadata_json=metadata_json)
-                    row.metadata_hash = row._set_hash()
-                    db_session.add(row)
+                metadata_q = db_session.query(DocumentMetadata).filter_by(document_symbol=elem)
+                if not metadata_q.count():
+                    metadata_json = _fetch_metadata(elem)
+                    dm = DocumentMetadata(document_symbol=elem, metadata_json=metadata_json)
+                    dm.metadata_hash = dm._set_hash()
+                    db_session.add(dm)
                     db_session.commit()
                 else:
                     pass
@@ -57,8 +57,8 @@ def _get_column(doc_symbol):
 
 
 def _fetch_metadata(document_symbol):
-    metadata_url = app.config.get("METDATA_URL")
+    metadata_url = app.config.get("METADATA_URL")
     page = BasePage()
-    root = page.get_root(metadata_url)
-    metadata_json = root.xpath('.//pre[@id="document-metadata"]')
-    return metadata_json
+    root = page.get_root(metadata_url + '?doc_symbol={}'.format(document_symbol))
+    metadata_json = root.xpath('.//pre[@id="document-metadata"]/text()')
+    return metadata_json[0]
