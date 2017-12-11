@@ -5,21 +5,84 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-6">
-            {% for doc in context %}
-            <ul>
-                <li>
-                    <a id="{{doc}}" href="http://127.0.0.1:5000/symbol/{{doc}}" class="doc-symbol">{{doc}}</a>
-                </li>
-              <li>
-                    <a class="doc-metadata" id='{{doc}}' href="http://127.0.0.1:5000/metadata?doc_symbol={{doc}}">Metadata for {{doc}}</a>
-                </li>
-            </ul>
-            {% endfor %}
-        </div>
+        <h3>Metadata</h3>  
+        <table class="table">
+        <thead>
+            <tr>
+                <th>Document Symbol</th>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for k, v in context.items() %}
+            <tr>
+                <td><a href="http://127.0.0.1:5000/symbol/{{k}}"> {{k}}</td>
+                <td>{{ v.metadata.title }}</td>
+            </tr>
+        {% endfor %}
 
-        <div class="contents col-sm-6">
-            <span>Title: </span> 
+        </tbody>  
+        </table>
+    {#
+            <p><b>Title:</b> {{ ctx.metadata.title }} </p>
+            <p><b>Title Statement:</b> {{ ctx.metadata.title_statement.0 }}
+            </p>
+   
+            <p class="document-symbol" id="{{ doc.document_symbol }}">
+                <b>Document Symbol:</b> {{ doc.document_symbol }}
+            </p>
+            <p>
+                <b>Pubdate:</b> {{ doc.pubyear }}
+            </p>
+        
+            <p> 
+                <b>Authors:</b> {{ doc.author }}
+            </p>
+
+            <p>
+                <b>Imprint:</b> {{ doc.imprint }}
+            </p>
+            <p><b>Summary:</b>
+                {{ doc.summary }}
+            </p>
+            <p><b>Agenda:</b>
+                {{ doc.agenda }}
+            </p>
+            <p>
+                <b>Subjects:</b>
+                <ul> 
+                    {% for k, v in doc.subjects.items() %}
+                    <li><a target="_blank" href="{{v}}">{{k}}</a></li>
+                    {% endfor %}
+                </ul>
+            </p>
+            <p>
+                <b>Notes:</b>
+                <ul>
+                    {% for note in doc.notes %}
+                    <li> {{ note }} </li>
+                    {% endfor %}
+               </ul>
+            </p>
+            <p>
+                <b>Related Documents:</b>
+                
+                <ul>
+                    {% for doc, link in doc.related_documents.items() %}
+                    <li><a href="{{link}}">{{ doc }} </a></li>
+                    {% endfor %}
+                </ul>
+            </p>
+            <p>
+                <b>Authors:</b>
+                <ul>
+                    {% for auth in doc.authority_authors %}
+                    <li>{{auth}}</li>
+                    {% endfor %}
+                </ul>
+            </p>
+    #}
+
         </div>
     </div>
 </div>
